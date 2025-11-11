@@ -20,6 +20,7 @@ def info(teks):
 def lihatproduk():
     try:
         df = pd.read_csv('produk.csv')
+        df.columns = df.columns.str.strip()
     except FileNotFoundError:
         print("File tidak ditemukan.")
         return None
