@@ -5,6 +5,8 @@ import pandas as pd
 import inquirer
 import os
 
+LP = {}
+
 def tambahproduk():
     print("tambah produk.")
 
@@ -120,6 +122,7 @@ def verifikasitopup():
     print("verifikasi top up")
 
 def laporanpenjualan():
+    print(LP)
     print("laporan penjualan")
 
 def hapususer():
