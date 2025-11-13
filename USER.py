@@ -1,5 +1,5 @@
 from prettytable import PrettyTable
-from create import lihatproduk,tambahpesanan,judul
+from create import lihatproduk,judul
 import pandas as pd
 import inquirer
 import os

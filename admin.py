@@ -1,6 +1,6 @@
 from prettytable import PrettyTable
 from create import lihatproduk,judul
-from update import updateproduk
+
 import pandas as pd
 import inquirer
 import os
