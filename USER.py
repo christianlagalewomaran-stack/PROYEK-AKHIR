@@ -97,6 +97,45 @@ def tambahpesanan():
     print(f"Pesanan '{nama}' telah ditambahkan.")
 
 def hapuspesanan():
+    global pesanan
+    
+    if not pesanan:
+        print("Tidak ada pesanan.")
+        return
+    
+    table = PrettyTable()
+    table.field_names = ["No", "Nama Produk", "Jumlah", "Harga Total"]
+    
+    for no, item in pesanan.items():
+        total = item['harga'] * item['jumlah']
+        table.add_row([no, item['nama'], item['jumlah'], total])
+
+    print("\n=== DAFTAR PESANAN ===")
+    print(table)
+
+    try:
+        pilih = int(input("Masukkan nomor pesanan yang ingin dihapus: "))
+    except ValueError:
+        print("Input harus angka.")
+        return
+
+    if pilih not in pesanan:
+        print("Nomor pesanan tidak ditemukan.")
+        return
+
+    item = pesanan[pilih]
+    produk_id = item['id']
+    jumlah_dihapus = item['jumlah']
+
+    del pesanan[pilih]
+
+    pesanan = {i+1: v for i, v in enumerate(pesanan.values())}
+
+    df = pd.read_csv('produk.csv')
+
+    if produk_id in df['id'].values:
+        df.loc[df['id'] == produk_id, 'stok'] += jumlah_dihapus
+        df.to_csv('produk.csv', index=False)
     print("hapus pesanan")
 
 def konfirmasipesanan(username):
