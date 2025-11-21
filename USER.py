@@ -136,7 +136,7 @@ def hapuspesanan():
     if produk_id in df['id'].values:
         df.loc[df['id'] == produk_id, 'stok'] += jumlah_dihapus
         df.to_csv('produk.csv', index=False)
-    print("hapus pesanan")
+    print("pesanan berhasil dihapus")
 
 def konfirmasipesanan(username):
     global pesanan
@@ -199,7 +199,7 @@ def konfirmasipesanan(username):
         
     df_riwayat.to_csv("riwayat.csv", index=False)
     pesanan.clear()
-    print("konfirmasi pesanan")
+    print("pesanan berhasil dikonfirmasi")
 
 def historipembelian(username):
     try:
