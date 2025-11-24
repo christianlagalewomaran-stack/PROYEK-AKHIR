@@ -1,49 +1,51 @@
 from create import judul,info
 from USER import loginuser
 from admin import loginadmin
+from colorama import Style, Fore, Back, init
 import pandas as pd
 import os
 import re
 
 kesempatanlogin = 3
+init(autoreset=True)
 
 def registrasi():
     judul("REGISTRASI")
     try:
         userbaru = input("Username(3-10 karakter) : ")
         if len(userbaru) < 3 or len(userbaru) > 10:
-            raise ValueError("username harus 3-10 karakter")
+            raise ValueError(Fore.RED + "Username harus 3-10 karakter")
         if " " in userbaru:
-            raise ValueError("username tidak boleh mengandung spasi")
+            raise ValueError(Fore.RED + "Username tidak boleh mengandung spasi")
         if userbaru == "":
-            raise ValueError("input tidak boleh kosong")
+            raise ValueError(Fore.RED + "Input tidak boleh kosong")
         if not re.match("^[A-Za-z0-9]+$", userbaru):
-            raise ValueError("username hanya boleh huruf dan angka")
+            raise ValueError(Fore.RED + "Username hanya boleh huruf dan angka")
         try:
             df = pd.read_csv('akun.csv', dtype={'id': int, 'username': str, 'password': str, 'role': str, 'saldo': int})
         except FileNotFoundError:
             df = pd.DataFrame(columns=["id", "username", "password", "role", "saldo"])
 
         if userbaru in df['username'].values:
-            input("Username sudah terdaftar! Tekan Enter untuk melanjutkan...")
+            input(Fore.RED + "Username sudah terdaftar! Tekan enter untuk melanjutkan...")
             return
 
         pwbaru = input("Password(4-10 karakter) : ")
         if len(pwbaru) < 4 or len(pwbaru) > 10:
-            raise ValueError("password harus 4-10 karakter")
+            raise ValueError(Fore.RED + "Password harus 4-10 karakter")
         if pwbaru == "":
-            raise ValueError("input tidak boleh kosong")
+            raise ValueError(Fore.RED + "Input tidak boleh kosong")
         if " " in pwbaru:
-            raise ValueError("password tidak boleh mengandung spasi")
+            raise ValueError(Fore.RED + "Password tidak boleh mengandung spasi")
         if not re.match("^[A-Za-z0-9]+$", pwbaru):
-            raise ValueError("password hanya boleh huruf dan angka")
+            raise ValueError(Fore.RED + "Password hanya boleh huruf dan angka")
         
         try:
             saldo = int(input("saldo: "))
             if saldo < 0:
-                raise ValueError("saldo tidak boleh negatif")
+                raise ValueError(Fore.RED + "Saldo tidak boleh negatif")
         except ValueError:
-            raise ValueError("saldo harus berupa angka")
+            raise ValueError(Fore.RED + "Saldo harus berupa angka")
         
         if df.empty:
             idbaru = 1
@@ -65,25 +67,25 @@ def registrasi():
 def login():
     global kesempatanlogin
     try:
-        user = input("username: ")
+        user = input("Username: ")
         if user == "":
-            raise ValueError("input tidak boleh kosong")
+            raise ValueError(Fore.RED + "Input tidak boleh kosong")
         if not re.match("^[A-Za-z0-9]+$", user):
-            raise ValueError("username hanya boleh huruf dan angka")
-        pw = input("password: ")
+            raise ValueError(Fore.RED + "username hanya boleh huruf dan angka")
+        pw = input("Password: ")
         if pw == "":
-            raise ValueError("input tidak boleh kosong")
+            raise ValueError(Fore.RED + "Input tidak boleh kosong")
         if not re.match("^[A-Za-z0-9]+$", pw):
-            raise ValueError("password hanya boleh huruf dan angka")
+            raise ValueError(Fore.RED + "Password hanya boleh huruf dan angka")
     except ValueError as e:
         print(e)
-        input("enter untuk kembali ke menu....")
+        input("Enter untuk kembali ke menu....")
         return
     
     try:
         df = pd.read_csv('akun.csv', dtype=str)
     except FileNotFoundError:
-        print("file tidak ditemukan")
+        print(Fore.RED + "File tidak ditemukan")
         return
     
     role = None 
@@ -92,7 +94,7 @@ def login():
             role = row["role"]
             break
     if role is not None: 
-        info(f"anda berhasil login sebagai {role}")
+        info(Fore.GREEN + f"Anda berhasil login sebagai {role}")
         if role == "admin":
             loginadmin(user)
         elif role == "user":
@@ -100,12 +102,12 @@ def login():
     else:
         kesempatanlogin -= 1
         if kesempatanlogin > 0:
-            print(f"Login anda Gagal, kesempatan login tersisa {kesempatanlogin}")
-            input("enter untuk kembali ke menu....")
+            print(Fore.RED + f"Login Anda gagal, kesempatan login tersisa {kesempatanlogin}")
+            input("Enter untuk kembali ke menu....")
             os.system("cls || clear")
         else:
-            print("kesempatan anda habis")
-            input("enter untuk keluar")
+            print(Fore.RED + "Kesempatan Anda habis")
+            input("Enter untuk keluar")
             os.system('cls || clear')
             print("ANDA TELAH KELUAR".center(50))
             print("TERIMA KASIH SUDAH MENGGUNAKAN PROGRAM INI".center(50))

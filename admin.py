@@ -1,10 +1,11 @@
 from prettytable import PrettyTable
+from colorama import Fore,Back,Style,init
 from create import lihatproduk,judul
-from USER import antriTopUp
 import pandas as pd
 import inquirer
 import os
 
+init(autoreset=True)
 
 def tambahproduk():
     columns_required = ["id", "nama", "kategori", "harga", "gender", "stok"]
@@ -12,7 +13,7 @@ def tambahproduk():
         df = pd.read_csv('produk.csv')
         for col in columns_required:
             if col not in df.columns:
-                raise ValueError("Struktur produk.csv tidak sesuai: kolom '" + col + "' tidak ditemukan")
+                raise ValueError(Fore.RED + "Struktur produk.csv tidak sesuai: kolom '" + col + "' tidak ditemukan")
     except FileNotFoundError:
         df = pd.DataFrame(columns=columns_required)
     except ValueError as e:
@@ -25,15 +26,16 @@ def tambahproduk():
         try:
             next_id = int(df['id'].max()) + 1
         except Exception:
-            print("Kolom id mengandung nilai tidak valid.")
+            print(Fore.RED + "Kolom ID mengandung nilai tidak valid.")
             return
 
-    nama = input("Masukkan nama produk: ").strip()
+    nama = input(Fore.YELLOW + "Masukkan nama produk: ").strip()
     if not nama:
-        print("Nama produk tidak boleh kosong.")
+        print(Fore.RED + "Nama produk tidak boleh kosong.")
         return
-    kategori_choices = ["atasan", "bawahan", "sepatu", "pelengkap"]
-    gender_choices = ["pria", "wanita", "unisex"]
+    print()
+    kategori_choices = ["Atasan", "Bawahan", "Sepatu", "Pelengkap"]
+    gender_choices = ["Pria", "Wanita", "Unisex"]
     kategori_prompt = [
         inquirer.List("kategori", message="Pilih kategori", choices=[f"{i+1}. {v}" for i, v in enumerate(kategori_choices)])
     ]
@@ -51,20 +53,20 @@ def tambahproduk():
     gender_ans = ans["gender"]
     gender = gender_choices[int(gender_ans.split(".")[0]) - 1]
     try:
-        harga = int(input("Masukkan harga (angka): ").strip())
+        harga = int(input(Fore.YELLOW + "Masukkan harga (angka): ").strip())
         if harga <= 0:
-            print("Harga harus > 0.")
+            print(Fore.RED + "Harga harus > 0.")
             return
     except ValueError:
-        print("Harga harus berupa angka.")
+        print(Fore.RED + "Harga harus berupa angka.")
         return
     try:
-        stok = int(input("Masukkan stok (angka): ").strip())
+        stok = int(input(Fore.YELLOW + "Masukkan stok (angka): ").strip())
         if stok < 0:
-            print("Stok tidak boleh negatif.")
+            print(Fore.RED + "Stok tidak boleh negatif.")
             return
     except ValueError:
-        print("Stok harus berupa angka.")
+        print(Fore.RED + "Stok harus berupa angka.")
         return
     new_row = {"id": next_id, "nama": nama, "kategori": kategori, "harga": harga, "gender": gender, "stok": stok}
     df = pd.concat([df, pd.DataFrame([new_row])], ignore_index=True)
@@ -72,18 +74,18 @@ def tambahproduk():
         df.to_csv('produk.csv', index=False)
         print("Produk berhasil ditambahkan:")
         table = PrettyTable()
-        table.field_names = ["id", "nama", "kategori", "harga", "gender", "stok"]
+        table.field_names = ["ID", "Nama", "Kategori", "Harga", "Gender", "Stok"]
         table.add_row([next_id, nama, kategori, harga, gender, stok])
         print(table)
     except Exception as e:
         print(f"Gagal menyimpan produk: {e}")
 
-def updateproduk(username):
+def updateproduk():
     try:
         df = pd.read_csv('produk.csv')
         df.columns = df.columns.str.strip()
     except FileNotFoundError:
-        print("File tidak ditemukan.")
+        print(Fore.RED + "File tidak ditemukan.")
         return
 
     filtered_df = lihatproduk()
@@ -91,13 +93,13 @@ def updateproduk(username):
         return
 
     try:
-        pesan_id = int(input("Masukkan ID produk yang mau diubah: "))
+        pesan_id = int(input(Fore.YELLOW + "Masukkan ID produk yang mau diubah: "))
     except ValueError:
-        print("Input harus berupa angka.")
+        print(Fore.RED + "Input harus berupa angka.")
         return
     
     if pesan_id not in filtered_df['id'].values:
-        print("ID produk tidak valid.")
+        print(Fore.RED + "ID produk tidak valid.")
         return
 
     produk = df[df['id'] == pesan_id]
@@ -107,71 +109,71 @@ def updateproduk(username):
     pilih = [
             inquirer.List("opsi",
                     message="PILIH KATEGORI YANG MAU DIUBAH",
-                    choices=["1. nama", "2. kategori", "3. stok", "4. harga", "5. gender"],
+                    choices=["1. Nama", "2. Kategori", "3. Stok", "4. Harga", "5. Gender"],
                 ),
     ]
     answer = inquirer.prompt(pilih)
     ubah = answer["opsi"]
     if "1" in ubah:
-        nama_baru = input("Masukkan nama baru produk: ")
+        nama_baru = input(Fore.YELLOW + "Masukkan nama baru produk: ")
         if nama_baru != produk['nama'].values[0]:
             df.at[indeks, 'nama'] = nama_baru
             df.to_csv('produk.csv', index=False)
-            print("Produk berhasil diupdate!")
+            print(Fore.GREEN + "Produk berhasil diupdate!")
         else:
-            print("Nama sama dengan sebelumnya, tidak diubah.")
+            print(Fore.RED + "Nama sama dengan sebelumnya, tidak diubah.")
     elif "2" in ubah:
         menu = [
             inquirer.List("opsi",
                 message="UBAH KATEGORI",
-                choices=["1. atasan", "2. bawahan", "3. sepatu", "4. pelengkap"],
+                choices=["👕. Atasan", "👖. Bawahan", "👟. Sepatu", "⌚. Pelengkap"],
             ),
         ]
         answer = inquirer.prompt(menu)
         kategori_baru = answer["opsi"]
-        if "1" in kategori_baru:
-            kategori_baru = "atasan"
-        elif "2" in kategori_baru:
-            kategori_baru = "bawahan"
-        elif "3" in kategori_baru:
-            kategori_baru = "sepatu"
+        if "👕" in kategori_baru:
+            kategori_baru = "Atasan"
+        elif "👖" in kategori_baru:
+            kategori_baru = "Bawahan"
+        elif "👟" in kategori_baru:
+            kategori_baru = "Sepatu"
         else:
-            kategori_baru = "pelengkap"
+            kategori_baru = "Pelengkap"
         if kategori_baru != produk['kategori'].values[0]:
             df.at[indeks, 'kategori'] = kategori_baru
             df.to_csv('produk.csv', index=False)
-            print("Produk berhasil diupdate!")
+            print(Fore.GREEN + "Produk berhasil diupdate!")
         else:
-            print("Kategori sama dengan sebelumnya, tidak diubah.")
+            print(Fore.RED + "Kategori sama dengan sebelumnya, tidak diubah.")
     elif "3" in ubah:
         try:
-            stok_baru = int(input("Masukkan stok baru produk: "))
+            stok_baru = int(input(Fore.YELLOW + "Masukkan stok baru produk: "))
         except ValueError:
-            print("Stok harus berupa angka.")
+            print(Fore.RED + "Stok harus berupa angka.")
             return
         if stok >= 0 and stok_baru != produk['stok'].values[0]:
             df.at[indeks, 'stok'] = stok_baru
             df.to_csv('produk.csv', index=False)
-            print("Produk berhasil diupdate!")
+            print(Fore.GREEN + "Produk berhasil diupdate!")
         else:
-            print("Stok sama dengan sebelumnya, tidak diubah.")
+            print(Fore.RED + "Stok sama dengan sebelumnya, tidak diubah.")
     elif "4" in ubah:
         try:
-            harga_baru = int(input("Masukkan harga baru produk: "))
+            harga_baru = int(input(Fore.YELLOW + "Masukkan harga baru produk: "))
         except ValueError:
-            print("Harga harus berupa angka.")
+            print(Fore.RED + "Harga harus berupa angka.")
             return
         if harga_baru != produk['harga'].values[0]:
             df.at[indeks, 'harga'] = harga_baru
             df.to_csv('produk.csv', index=False)
-            print("Produk berhasil diupdate!")
+            print(Fore.GREEN + "Produk berhasil diupdate!")
         else:
-            print("Harga sama dengan sebelumnya, tidak diubah.")
+            print(Fore.RED + "Harga sama dengan sebelumnya, tidak diubah.")
     else:
         menu = [
             inquirer.List("opsi",
                 message="UBAH GENDER",
-                choices=["pria", "wanita", "unisex"],
+                choices=["Pria", "Wanita", "Unisex"],
             ),
         ]
         answer = inquirer.prompt(menu)
@@ -179,18 +181,18 @@ def updateproduk(username):
         if gender_baru != produk['gender'].values[0]:
             df.at[indeks, 'gender'] = gender_baru
             df.to_csv('produk.csv', index=False)
-            print("Produk berhasil diupdate!")
+            print(Fore.GREEN + "Produk berhasil diupdate!")
         else:
-            print("Gender sama dengan sebelumnya, tidak diubah.")
+            print(Fore.RED + "Gender sama dengan sebelumnya, tidak diubah.")
 
 def hapusproduk():
     try:
         df = pd.read_csv('produk.csv')
     except FileNotFoundError:
-        print("File produk.csv tidak ditemukan.")
+        print(Fore.RED + "File produk.csv tidak ditemukan.")
         return
     if df.empty:
-        print("Tidak ada data produk.")
+        print(Fore.RED + "Tidak ada data produk.")
         return
     table = PrettyTable()
     table.field_names = df.columns.tolist()
@@ -198,78 +200,88 @@ def hapusproduk():
         table.add_row(row.tolist())
     print(table)
     try:
-        id_str = input("Masukkan ID produk yang akan dihapus: ").strip()
+        id_str = input(Fore.YELLOW + "Masukkan ID produk yang akan dihapus: ").strip()
         id_produk = int(id_str)
     except ValueError:
-        print("ID harus berupa angka valid.")
+        print(Fore.RED + "ID harus berupa angka valid.")
         return
     if id_produk not in df['id'].values:
-        print("ID produk tidak ditemukan.")
+        print(Fore.RED + "ID produk tidak ditemukan.")
         return
     nama_produk = df.loc[df['id'] == id_produk, 'nama'].values[0]
-    konfirmasi = input(f"Yakin hapus produk '{nama_produk}' (ID {id_produk})? [y/N]: ").strip().lower()
+    konfirmasi = input(Fore.YELLOW + f"Yakin hapus produk '{nama_produk}' (ID {id_produk})? [y/n]: ").strip().lower()
     if konfirmasi != 'y':
-        print("Penghapusan dibatalkan.")
+        print(Fore.GREEN + "Penghapusan dibatalkan.")
         return
     
     try:
         df_baru = df[df['id'] != id_produk]
         df_baru.to_csv('produk.csv', index=False)
-        print(f"Produk dengan ID {id_produk} berhasil dihapus.")
+        print(Fore.GREEN + f"Produk dengan ID {id_produk} berhasil dihapus.")
     except Exception as e:
-        print(f"Gagal menghapus produk: {e}")
-
-    print("hapus produk")
+        print(Fore.RED + f"Gagal menghapus produk: {e}")
 
 def verifikasitopup():
-    if not antriTopUp:
-        print("Tidak ada antrian top up.")
+    try:
+        df_topup = pd.read_csv('topup.csv')
+    except FileNotFoundError:
+        print(Fore.RED + "Tidak ada antrian top up.")
+        return
+
+    pending_topups = df_topup[pd.isna(df_topup['status']) | (df_topup['status'] == '')].copy()
+
+    if pending_topups.empty:
+        print(Fore.RED + "Tidak ada antrian top up.")
         return
 
     table = PrettyTable()
-    table.field_names = ['No', 'Username', 'Nominal', 'Status']
-    pending= [i for i, req in enumerate(antriTopUp) if req['status'] == 'pending']
+    table.field_names = ['No', 'Username', 'Nominal', 'Waktu']
+    
+    pending_topups['no_urut'] = range(1, len(pending_topups) + 1)
 
-    for i, j in enumerate(pending):
-        req = antriTopUp[j]
-        table.add_row([i + 1, req['username'], req['nominal'], req['status']])
-    print("Daftar Antrian Top Up (Pending):")
+    for _, row in pending_topups.iterrows():
+        table.add_row([int(row['no_urut']), row['username'], row['top_up'], row['waktu']])
+
+    print(Fore.YELLOW + "Daftar Antrian Top Up (Pending):")
     print(table)
 
     try:
-        pilihan = int(input("Pilih nomor antrian untuk diverifikasi (0 untuk batal): "))
+        pilihan = int(input(Fore.YELLOW + "Pilih nomor antrian untuk diverifikasi (0 untuk batal): "))
         if pilihan == 0:
             return
-        if not (1 <= pilihan <= len(pending)):
-            print("Pilihan tidak valid.")
+        if not (1 <= pilihan <= len(pending_topups)):
+            print(Fore.RED + "Pilihan tidak valid.")
             return
         
-        id = pending[pilihan - 1]
-        verifikasi = antriTopUp[id]
+        verifikasi = pending_topups[pending_topups['no_urut'] == pilihan].iloc[0]
+        username = verifikasi['username']
+        nominal = verifikasi['top_up']
 
         action_question = [
             inquirer.List("action",
-                        message=f"Verifikasi top up untuk {verifikasi['username']} sebesar {verifikasi['nominal']}",
-                        choices=["Setujui", "Tolak"],
+                        message=f"Verifikasi top up untuk {username} sebesar {nominal}",
+                        choices=["✅ Setujui", "❎ Tolak"],
             ),
         ]
         answer = inquirer.prompt(action_question)    
         action = answer["action"]
-
-        if action == "Setujui":
+        
+        if action == "✅ Setujui":
             df_akun = pd.read_csv('akun.csv')
-            user_index = df_akun.index[df_akun['username'] == verifikasi['username']].tolist()
+            user_index = df_akun.index[df_akun['username'] == username].tolist()
             if user_index:
-                df_akun.loc[user_index[0], 'saldo'] += verifikasi['nominal']
+                df_akun.loc[user_index[0], 'saldo'] += nominal
                 df_akun.to_csv('akun.csv', index=False)
-                verifikasi['status'] = 'approved'
-                print(f"Top up untuk {verifikasi['username']} sebesar {verifikasi['nominal']} telah disetujui.")
-        elif action == "Tolak":
-            verifikasi['status'] = 'gagal'
-            print(f"Top up untuk {verifikasi['username']} sebesar {verifikasi['nominal']} telah ditolak.")
+                df_topup.loc[verifikasi.name, 'status'] = 'Berhasil'
+                print(Fore.GREEN + f"Top up untuk {username} sebesar {nominal} telah disetujui.")
+        elif action == "❎ Tolak":
+            df_topup.loc[verifikasi.name, 'status'] = 'Gagal'
+            print(Fore.RED + f"Top up untuk {username} sebesar {nominal} telah ditolak.")
+
+        df_topup.to_csv('topup.csv', index=False)
 
     except (ValueError, IndexError, TypeError):
-        print("Input tidak valid.")
+        print(Fore.RED + "Input tidak valid.")
 
 def laporanpenjualan():
     judul("LAPORAN PENJUALAN DAN TOPUP")
@@ -277,7 +289,7 @@ def laporanpenjualan():
     opsi = [
         inquirer.List(
             "pilih",
-            message="Pilih laporan yang ingin dilihat",
+            message=Fore.YELLOW + "Pilih laporan yang ingin dilihat",
             choices=["1. Laporan Penjualan", "2. Laporan Top Up"],
         )
     ]
@@ -290,11 +302,11 @@ def laporanpenjualan():
         try:
             df = pd.read_csv("riwayat.csv")
         except FileNotFoundError:
-            print("Belum ada data penjualan.")
+            print(Fore.RED + "Belum ada data penjualan.")
             return
         
         if df.empty:
-            print("Belum ada data penjualan.")
+            print(Fore.RED + "Belum ada data penjualan.")
             return
 
         table = PrettyTable()
@@ -306,32 +318,34 @@ def laporanpenjualan():
         judul("LAPORAN PENJUALAN")
         print(table)
         total_pemasukan = df["total"].sum()
-        print(f"Total pemasukan: {total_pemasukan}")
+        print(Fore.YELLOW + f"Total pemasukan: {total_pemasukan}")
         
     def laporanTopUp():
         try:
             df = pd.read_csv("topup.csv")
         except FileNotFoundError:
-            print("Belum ada data top up.")
+            print(Fore.RED + "Belum ada data top up.")
             return
 
         if df.empty:
-            print("Belum ada data top up.")
+            print(Fore.RED + "Belum ada data top up.")
             return
 
         table = PrettyTable()
-        table.field_names = ["ID", "Username", "Jumlah Top Up", "Waktu Top Up"]
+        table.field_names = ["Username", "Jumlah Top Up", "Waktu Top Up", "Status"]
 
         for _, row in df.iterrows():
-            id_row = row["id"] if "id" in df.columns else "N/A"
             user_row = row["username"] if "username" in df.columns else "N/A"
             jumlah_row = row["top_up"] if "top_up" in df.columns else "N/A"
             waktu_row = row["waktu"] if "waktu" in df.columns else "N/A"
-            table.add_row([id_row, user_row, jumlah_row, waktu_row])
+            status_row = row["status"] if "status" in df.columns else "N/A"
+            if pd.isna(status_row) or str(status_row).strip() == '':
+                status_row = 'Pending'
+            table.add_row([user_row, jumlah_row, waktu_row, status_row])
         judul("LAPORAN TOPUP")
         print(table)
         total_topup = df["top_up"].sum()
-        print(f"Total jumlah top up masuk: {total_topup}")
+        print(Fore.YELLOW + f"Total jumlah top up masuk: {total_topup}")
         
     if "1" in pilihan:
         laporanPenjualan()
@@ -344,16 +358,16 @@ def hapususer():
         df = pd.read_csv('akun.csv')
         for c in akun_cols:
             if c not in df.columns:
-                raise ValueError("Struktur akun.csv tidak sesuai: kolom '" + c + "' tidak ditemukan")
+                raise ValueError("Struktur akun.csv tidak sesuai: kolom '" + c + "' Tidak ditemukan")
     except FileNotFoundError:
-        print("File akun.csv tidak ditemukan.")
+        print(Fore.RED + "File akun.csv tidak ditemukan.")
         return
     except ValueError as e:
         print(str(e))
         return
 
     if df.empty:
-        print("Tidak ada data user.")
+        print(Fore.RED + "Tidak ada data user.")
         return
 
     table = PrettyTable()
@@ -363,7 +377,7 @@ def hapususer():
     print(table)
 
     pilih_prompt = [
-        inquirer.List("metode", message="Hapus berdasarkan", choices=["1. id", "2. username"])
+        inquirer.List("metode", message="Hapus berdasarkan", choices=["1. ID", "2. Username"])
     ]
     ans = inquirer.prompt(pilih_prompt)
     if not ans:
@@ -372,48 +386,48 @@ def hapususer():
 
     if metode.startswith("1"):
         try:
-            id = input("Masukkan ID user yang akan dihapus: ").strip()
+            id = input(Fore.YELLOW + "Masukkan ID user yang akan dihapus: ").strip()
             target_id = int(id)
         except ValueError:
-            print("ID harus berupa angka.")
+            print(Fore.RED + "ID harus berupa angka.")
             return
 
         if target_id not in df['id'].values:
-            print("ID user tidak ditemukan.")
+            print(Fore.RED + "ID user tidak ditemukan.")
             return
 
         if any((df['id'] == target_id) & (df['role'] == 'admin')):
-            print("Akun admin tidak boleh dihapus.")
+            print(Fore.RED + "Akun admin tidak boleh dihapus.")
             return
         username = df.loc[df['id'] == target_id, 'username'].values[0]
-        konfirmasi = input(f"Yakin hapus user '{username}' (ID {target_id})? [y/N]: ").strip().lower()
+        konfirmasi = input(Fore.YELLOW + f"Yakin hapus user '{username}' (ID {target_id})? [y/n]: ").strip().lower()
         if konfirmasi != 'y':
-            print("Penghapusan dibatalkan.")
+            print(Fore.GREEN + "Penghapusan dibatalkan.")
             return
         df_baru = df.loc[df['id'] != target_id].copy()
     else:
-        username = input("Masukkan username yang akan dihapus: ").strip()
+        username = input(Fore.YELLOW + "Masukkan username yang akan dihapus: ").strip()
         if username == "":
-            print("Username tidak boleh kosong.")
+            print(Fore.RED + "Username tidak boleh kosong.")
             return
         if username not in df['username'].values:
-            print("Username tidak ditemukan.")
+            print(Fore.RED + "Username tidak ditemukan.")
             return
         if any((df['username'] == username) & (df['role'] == 'admin')):
-            print("Akun admin tidak boleh dihapus.")
+            print(Fore.RED + "Akun admin tidak boleh dihapus.")
             return
-        konfirmasi = input(f"Yakin hapus user '{username}'? [y/N]: ").strip().lower()
+        konfirmasi = input(Fore.YELLOW + f"Yakin hapus user '{username}'? [y/n]: ").strip().lower()
         if konfirmasi != 'y':
-            print("Penghapusan dibatalkan.")
+            print(Fore.GREEN + "Penghapusan dibatalkan.")
             return
         df_baru = df.loc[df['username'] != username].copy()
         
     try:
         df_baru['id'] = range(1, len(df_baru) + 1)
         df_baru.to_csv('akun.csv', index=False)
-        print("User berhasil dihapus.")
+        print(Fore.GREEN + "User berhasil dihapus.")
     except Exception as e:
-        print(f"Gagal menghapus user: {e}")
+        print(Fore.RED + f"Gagal menghapus user: {e}")
     
 
 def loginadmin(username):
@@ -421,40 +435,40 @@ def loginadmin(username):
         os.system("cls || clear")
         menuuser = [
             inquirer.List("opsi",
-                    message="SILAHKAN PILIH OPSI",
-                    choices=["1. tambah produk", "2. lihat produk", "3. update produk", "4. hapus produk", "5. verifikasi top up", "6. laporan penjualan dan topup", "7. hapus user", "8. keluar"],
+                    message=Fore.WHITE + Back.BLUE + Style.BRIGHT + "SILAHKAN PILIH OPSI ADMIN",
+                    choices=["➕. Tambah produk", "👀. Lihat produk", "🧵. Update produk", "🗑️.. Hapus produk", "✅. Verifikasi top up", "📜. Laporan penjualan & top up", "❌. Hapus user", "✈️. Keluar"],
                 ),
         ]
         answer = inquirer.prompt(menuuser)
         menuuser = answer["opsi"]
         os.system("cls || clear")
 
-        if "1" in menuuser:
+        if "➕" in menuuser:
             judul("TAMBAH PRODUK")
             tambahproduk()
-            input("enter untuk kembali ke menu....")
-        elif "2" in menuuser:
+            input("Enter untuk kembali ke menu....")
+        elif "👀" in menuuser:
             judul("LIHAT PRODUK")
             lihatproduk()
-            input("enter untuk kembali ke menu....")
-        elif "3" in menuuser:
+            input("Enter untuk kembali ke menu....")
+        elif "🧵" in menuuser:
             judul("UPDATE PRODUK")
-            updateproduk(username)
-            input("\nenter untuk kembali ke menu....")
-        elif "4" in menuuser:
+            updateproduk()
+            input("\nEnter untuk kembali ke menu....")
+        elif "🗑️" in menuuser:
             judul("HAPUS PRODUK")
             hapusproduk()
-            input("enter untuk kembali ke menu....")
-        elif "5" in menuuser:
+            input("Enter untuk kembali ke menu....")
+        elif "✅" in menuuser:
             judul("VERIFIKASI TOP UP")
             verifikasitopup()
-            input("enter untuk kembali ke menu....")
-        elif "6" in menuuser:
+            input("Enter untuk kembali ke menu....")
+        elif "📜" in menuuser:
             laporanpenjualan()
-            input("enter untuk kembali ke menu....")
-        elif "7" in menuuser:
+            input("Enter untuk kembali ke menu....")
+        elif "❌" in menuuser:
             judul("HAPUS USER")
             hapususer()
-            input("enter untuk kembali ke menu....")
+            input("Enter untuk kembali ke menu....")
         else:
             break

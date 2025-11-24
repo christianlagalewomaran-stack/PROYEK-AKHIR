@@ -1,5 +1,17 @@
-id,username,top_up,waktu
-1,user,100000,2025-11-01 10:00:00
-2,user,50000,2025-11-10 15:30:00
-3,user,20000,2025-11-23 11:25:59
-4,test,10000,2025-11-24 07:58:59
+username,top_up,waktu,status
+user,100000,2025-11-01 10:00:00,Berhasil
+user,50000,2025-11-10 15:30:00,Berhasil
+user,20000,2025-11-23 11:25:59,Berhasil
+test,10000,2025-11-24 07:58:59,Berhasil
+user,100000,2025-11-24 12:05:10,Berhasil
+adalace,100000,2025-11-24 12:05:28,Berhasil
+user,50000,2025-11-24 12:51:40,Berhasil
+user,20000,2025-11-24 13:42:12,Berhasil
+user,5000,2025-11-24 13:50:12,Gagal
+user,1000,2025-11-24 13:57:30,Gagal
+user,20000,2025-11-24 14:00:32,Berhasil
+user,4,2025-11-24 15:48:57,Gagal
+user,50000,2025-11-24 15:56:58,Gagal
+user,3000,2025-11-24 16:05:05,Berhasil
+adalace,15000,2025-11-24 16:11:44,Berhasil
+adalace,50000,2025-11-24 16:42:43,Berhasil
