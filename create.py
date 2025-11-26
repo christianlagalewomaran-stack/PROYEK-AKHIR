@@ -13,7 +13,7 @@ def judul(teks):
     print(Fore.MAGENTA + Back.WHITE + Style.BRIGHT + teks.center(55))
     print(Fore.MAGENTA + Back.WHITE + Style.BRIGHT + garis2)
 
-garis1 = "^"*55
+garis1 = "^"*50
 def info(teks):
     print(Fore.MAGENTA + Back.WHITE + Style.BRIGHT + garis1)
     print(Fore.MAGENTA + Back.WHITE + Style.BRIGHT + teks.center(55))

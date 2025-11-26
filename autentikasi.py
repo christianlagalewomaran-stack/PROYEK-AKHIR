@@ -96,8 +96,10 @@ def login():
     if role is not None: 
         info(Fore.GREEN + f"Anda berhasil login sebagai {role}")
         if role == "admin":
+            input("Enter untuk kembali ke menu....")
             loginadmin(user)
         elif role == "user":
+            input("Enter untuk kembali ke menu....")
             loginuser(user)
     else:
         kesempatanlogin -= 1
