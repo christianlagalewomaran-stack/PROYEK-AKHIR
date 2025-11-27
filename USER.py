@@ -130,7 +130,7 @@ def hapuspesanan():
 
     df = pd.read_csv('produk.csv')
     if produk_id in df['id'].values:
-        df.loc[df['id'] == produk_id, 'stok'] += jumlah_dihapus
+        df.loc[df['id'] == produk_id]
         df.to_csv('produk.csv', index=False)
     print(Fore.GREEN + "Pesanan berhasil dihapus")
 
@@ -260,7 +260,7 @@ def historipembelianTopUp():
         print(table)
 
     def historiTopUp():
-        global current_user, antriTopUp
+        global current_user
         if current_user is None:
             print(Fore.RED + "Tidak ada pengguna yang sedang login.")
             return
